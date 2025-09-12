@@ -28,11 +28,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="p-6">
-          {children}
-        </div>
-      </main>
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            {children}
+          </div>
+        </main>
+        <footer className="bg-card border-t border-border px-6 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center">
+              <span>© {new Date().getFullYear()} Copyright IIT Jodhpur</span>
+            </div>
+            <div className="flex items-center">
+              <span>Developed by ByteBusterX</span>
+            </div>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 };
