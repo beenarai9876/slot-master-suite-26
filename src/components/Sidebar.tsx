@@ -3,6 +3,19 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarFooter,
+  useSidebar,
+} from '@/components/ui/sidebar';
 import { 
   Building, 
   LayoutDashboard, 
@@ -19,9 +32,10 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-const Sidebar: React.FC = () => {
+const AppSidebar: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const { state } = useSidebar();
 
   const adminMenuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -67,77 +81,81 @@ const Sidebar: React.FC = () => {
     return location.pathname === path;
   };
 
+  const getNavClassName = ({ isActive }: { isActive: boolean }) =>
+    isActive ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" : "hover:bg-sidebar-accent/50";
+
   return (
-    <div className="flex flex-col h-screen w-64 bg-sidebar border-r border-sidebar-border">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-6 border-b border-sidebar-border">
-        <div className="p-2 bg-sidebar-primary rounded-lg">
-          <Building className="h-6 w-6 text-sidebar-primary-foreground" />
-        </div>
-        <div>
-          <h1 className="text-lg font-bold text-sidebar-foreground">Equipment Portal</h1>
-          <p className="text-sm text-sidebar-foreground/70 capitalize">{user?.role} Dashboard</p>
-        </div>
-      </div>
-
-      {/* User Info */}
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-sidebar-accent rounded-full">
-            <User className="h-4 w-4 text-sidebar-accent-foreground" />
+    <Sidebar className={state === "collapsed" ? "w-16" : "w-64"} collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-3 p-4">
+          <div className="p-2 bg-sidebar-primary rounded-lg">
+            <Building className="h-6 w-6 text-sidebar-primary-foreground" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">
-              {user?.name}
-            </p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">
-              {user?.email}
-            </p>
-          </div>
+          {state !== "collapsed" && (
+            <div>
+              <h1 className="text-lg font-bold text-sidebar-foreground">Equipment Portal</h1>
+              <p className="text-sm text-sidebar-foreground/70 capitalize">{user?.role} Dashboard</p>
+            </div>
+          )}
         </div>
-      </div>
+        
+        {state !== "collapsed" && (
+          <div className="p-4 border-t border-sidebar-border">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-sidebar-accent rounded-full">
+                <User className="h-4 w-4 text-sidebar-accent-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  {user?.name}
+                </p>
+                <p className="text-xs text-sidebar-foreground/70 truncate">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </SidebarHeader>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {getMenuItems().map((item) => {
-          const Icon = item.icon;
-          const isActive = isActiveLink(item.path);
-          
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                ${isActive 
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm' 
-                  : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
-                }
-              `}
-            >
-              <Icon className="h-4 w-4 flex-shrink-0" />
-              <span className="flex-1">{item.label}</span>
-              {isActive && <ChevronRight className="h-4 w-4" />}
-            </NavLink>
-          );
-        })}
-      </nav>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {getMenuItems().map((item) => {
+                const Icon = item.icon;
+                const isActive = isActiveLink(item.path);
+                
+                return (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.path} className={getNavClassName}>
+                        <Icon className="h-4 w-4" />
+                        {state !== "collapsed" && <span>{item.label}</span>}
+                        {isActive && state !== "collapsed" && <ChevronRight className="h-4 w-4 ml-auto" />}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-      <Separator className="bg-sidebar-border" />
-
-      {/* Logout */}
-      <div className="p-4">
+      <SidebarFooter className="border-t border-sidebar-border">
         <Button
           onClick={logout}
           variant="ghost"
           className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
         >
-          <LogOut className="h-4 w-4 mr-3" />
-          Sign Out
+          <LogOut className="h-4 w-4" />
+          {state !== "collapsed" && <span className="ml-3">Sign Out</span>}
         </Button>
-      </div>
-    </div>
+      </SidebarFooter>
+    </Sidebar>
   );
 };
 
-export default Sidebar;
+export default AppSidebar;
