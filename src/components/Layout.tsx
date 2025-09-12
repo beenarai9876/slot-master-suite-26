@@ -26,13 +26,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="p-6">
-          {children}
+    <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-1">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            {children}
+          </div>
+        </main>
+      </div>
+      <footer className="bg-primary text-primary-foreground">
+        <div className="px-6 py-4 flex items-center justify-between text-sm">
+          <div>
+            Copyright © 2024 Indian Institute of Technology Jodhpur. All Rights Reserved. Credits & Attribution
+          </div>
+          <div>
+            Developed by JSR Infotech
+          </div>
         </div>
-      </main>
+      </footer>
     </div>
   );
 };
